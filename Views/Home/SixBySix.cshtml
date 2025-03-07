@@ -1,0 +1,160 @@
+﻿@{
+    ViewData["Title"] = "6x6 Tic-Tac-Toe";
+}
+
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+
+<div class="game-container">
+    <div class="board-wrapper">
+        <!-- 6x6 Tic-Tac-Toe -->
+        <div class="board-container">
+            <h1 class="display-4">6x6</h1>
+            <table id="board6x6">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <tr>
+                        @for (int j = 0; j < 6; j++)
+                        {
+                            <td onclick="makeMove(@i, @j)"></td>
+                        }
+                    </tr>
+                }
+            </table>
+            <p id="status6x6">Current Player: X</p>
+            <button onclick="resetGame()">Restart</button>
+            <button onclick="toggleAI()">PvP or AI</button>
+            <p id="aiStatus6x6"></p>
+        </div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+        <h2>Scoreboard</h2>
+        <p><span class="player-x">Player X:</span> <span id="scoreX6x6">0</span></p>
+        <p><span class="player-o">Player O:</span> <span id="scoreO6x6">0</span></p>
+    </div>
+</div>
+
+<script>
+    let board = Array.from({ length: 6 }, () => Array(6).fill(""));
+    let currentPlayer = "X";
+    let gameActive = true;
+    let aiEnabled = false;
+    let scores = { X: 0, O: 0 };
+
+    function updateScore(winner) {
+        if (winner) {
+            scores[winner]++;
+            document.getElementById(`score${winner}6x6`).innerText = scores[winner];
+        }
+    }
+
+    function makeMove(row, col) {
+        if (!gameActive || board[row][col] !== "") return;
+
+        board[row][col] = currentPlayer;
+        document.getElementById("board6x6").rows[row].cells[col].innerText = currentPlayer;
+
+        let winningCells = checkWinner();
+        if (winningCells) {
+            document.getElementById("status6x6").innerText = `${currentPlayer} Wins!`;
+            updateScore(currentPlayer);
+            gameActive = false;
+            highlightWinningCells(winningCells);
+            return;
+        }
+
+        if (board.flat().every(cell => cell !== "")) {
+            document.getElementById("status6x6").innerText = "It's a Draw!";
+            gameActive = false;
+            return;
+        }
+
+        currentPlayer = currentPlayer === "X" ? "O" : "X";
+        document.getElementById("status6x6").innerText = `Current Player: ${currentPlayer}`;
+
+        if (aiEnabled && currentPlayer === "O" && gameActive) {
+            setTimeout(makeAIMove, 500);
+        }
+    }
+
+    function makeAIMove() {
+        let emptyCells = [];
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
+                if (board[i][j] === "") {
+                    emptyCells.push([i, j]);
+                }
+            }
+        }
+
+        if (emptyCells.length > 0) {
+            let [row, col] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            board[row][col] = "O";
+            document.getElementById("board6x6").rows[row].cells[col].innerText = "O";
+
+            let winningCells = checkWinner();
+            if (winningCells) {
+                document.getElementById("status6x6").innerText = "O Wins!";
+                updateScore("O");
+                gameActive = false;
+                highlightWinningCells(winningCells);
+                return;
+            }
+
+            if (board.flat().every(cell => cell !== "")) {
+                document.getElementById("status6x6").innerText = "It's a Draw!";
+                gameActive = false;
+                return;
+            }
+
+            currentPlayer = "X";
+            document.getElementById("status6x6").innerText = `Current Player: ${currentPlayer}`;
+        }
+    }
+
+    function toggleAI() {
+        aiEnabled = !aiEnabled;
+        document.getElementById("aiStatus6x6").innerText = aiEnabled ? "AI Enabled" : "AI Disabled";
+    }
+
+    function highlightWinningCells(cells) {
+        cells.forEach(([row, col]) => {
+            document.getElementById("board6x6").rows[row].cells[col].classList.add("winner");
+        });
+    }
+
+    function resetGame() {
+        board = Array.from({ length: 6 }, () => Array(6).fill(""));
+        gameActive = true;
+        currentPlayer = "X";
+        document.getElementById("status6x6").innerText = `Current Player: X`;
+        document.querySelectorAll("#board6x6 td").forEach(cell => {
+            cell.innerText = "";
+            cell.classList.remove("winner");
+        });
+    }
+
+    function checkWinner() {
+        let directions = [
+            [0, 1], [1, 0], [1, 1], [1, -1]
+        ];
+        for (let r = 0; r < 6; r++) {
+            for (let c = 0; c < 6; c++) {
+                if (board[r][c] !== "") {
+                    for (let [dr, dc] of directions) {
+                        let cells = [];
+                        for (let k = 0; k < 4; k++) {
+                            let nr = r + dr * k, nc = c + dc * k;
+                            if (nr >= 0 && nr < 6 && nc >= 0 && nc < 6 && board[nr][nc] === board[r][c]) {
+                                cells.push([nr, nc]);
+                            } else break;
+                        }
+                        if (cells.length === 4) return cells;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+</script>

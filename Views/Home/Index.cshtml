@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Tic-Tac-Toe";
+}
+
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+
+<div class="game-container">
+    <div class="board-wrapper">
+        <!-- 3x3 Tic-Tac-Toe -->
+        <div class="board-container">
+            <h1 class="display-4">3x3</h1>
+            <table id="board3x3">
+                @for (int i = 0; i < 3; i++)
+                {
+                    <tr>
+                        @for (int j = 0; j < 3; j++)
+                        {
+                            <td onclick="makeMove(3, @i, @j)"></td>
+                        }
+                    </tr>
+                }
+            </table>
+            <p id="status3x3">Current Player: X</p>
+            <button onclick="resetGame(3)">Restart</button>
+            <button onclick="toggleAI(3)">PvP Or AI</button>
+            <p id="aiStatus3x3"></p>
+        </div>
+    </div>
+
+    <!-- Scoreboard -->
+    <div class="scoreboard">
+        <h2>Scoreboard</h2>
+        <p><span class="player-x">Player X:</span> <span id="scoreX3x3">0</span></p>
+        <p><span class="player-o">Player O:</span> <span id="scoreO3x3">0</span></p>
+    </div>
+</div>
+
+<script>
+    let boards = { 3: Array(3).fill(null).map(() => Array(3).fill("")) };
+    let currentPlayers = { 3: "X" };
+    let gameActives = { 3: true };
+    let aiEnabled = { 3: false };
+    let scores = { 3: { X: 0, O: 0 } };
+
+    function updateScore(winner, size) {
+        if (winner === "X") {
+            scores[size].X++;
+            document.getElementById(`scoreX${size}x${size}`).innerText = scores[size].X;
+        } else {
+            scores[size].O++;
+            document.getElementById(`scoreO${size}x${size}`).innerText = scores[size].O;
+        }
+    }
+
+    function makeMove(size, row, col) {
+        if (!gameActives[size] || boards[size][row][col] !== "") return;
+
+        boards[size][row][col] = currentPlayers[size];
+        document.getElementById(`board${size}x${size}`).rows[row].cells[col].innerText = currentPlayers[size];
+
+        let winningCells = checkWinner(size);
+        if (winningCells) {
+            document.getElementById(`status${size}x${size}`).innerText = `${currentPlayers[size]} Wins!`;
+            updateScore(currentPlayers[size], size);
+            gameActives[size] = false;
+            highlightWinningCells(size, winningCells);
+            return;
+        }
+
+        if (boards[size].flat().every(cell => cell !== "")) {
+            document.getElementById(`status${size}x${size}`).innerText = "It's a Draw!";
+            gameActives[size] = false;
+            return;
+        }
+
+        currentPlayers[size] = currentPlayers[size] === "X" ? "O" : "X";
+        document.getElementById(`status${size}x${size}`).innerText = `Current Player: ${currentPlayers[size]}`;
+
+        if (aiEnabled[size] && currentPlayers[size] === "O" && gameActives[size]) {
+            setTimeout(() => makeAIMove(size), 500);
+        }
+    }
+
+    function makeAIMove(size) {
+        let emptyCells = [];
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (boards[size][i][j] === "") {
+                    emptyCells.push([i, j]);
+                }
+            }
+        }
+
+        if (emptyCells.length > 0) {
+            let [row, col] = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            makeMove(size, row, col);
+        }
+    }
+
+    function toggleAI(size) {
+        aiEnabled[size] = !aiEnabled[size];
+        document.getElementById(`aiStatus${size}x${size}`).innerText = aiEnabled[size] ? "AI Enabled" : "AI Disabled";
+    }
+
+    function highlightWinningCells(size, cells) {
+        cells.forEach(([row, col]) => {
+            document.getElementById(`board${size}x${size}`).rows[row].cells[col].classList.add("winner");
+        });
+    }
+
+    function resetGame(size) {
+        boards[size] = Array(size).fill(null).map(() => Array(size).fill(""));
+        gameActives[size] = true;
+        currentPlayers[size] = "X";
+        document.getElementById(`status${size}x${size}`).innerText = `Current Player: X`;
+        document.querySelectorAll(`#board${size}x${size} td`).forEach(cell => cell.innerText = "");
+        document.querySelectorAll(`#board${size}x${size} td`).forEach(cell => cell.classList.remove("winner"));
+    }
+
+    function checkWinner(size) {
+        let board = boards[size];
+
+        // Check rows
+        for (let i = 0; i < size; i++) {
+            if (board[i].every(cell => cell === board[i][0] && cell !== "")) {
+                return board[i].map((_, j) => [i, j]);
+            }
+        }
+
+        // Check columns
+        for (let j = 0; j < size; j++) {
+            let col = board.map(row => row[j]);
+            if (col.every(cell => cell === col[0] && cell !== "")) {
+                return col.map((_, i) => [i, j]);
+            }
+        }
+
+        // Check diagonals
+        let mainDiag = board.map((row, i) => row[i]);
+        if (mainDiag.every(cell => cell === mainDiag[0] && cell !== "")) {
+            return mainDiag.map((_, i) => [i, i]);
+        }
+
+        let antiDiag = board.map((row, i) => row[size - 1 - i]);
+        if (antiDiag.every(cell => cell === antiDiag[0] && cell !== "")) {
+            return antiDiag.map((_, i) => [i, size - 1 - i]);
+        }
+
+        return null; // No winner
+    }
+</script>

@@ -1,0 +1,120 @@
+/* Neon Theme for Tic-Tac-Toe */
+body {
+    background-color: #0d0d0d; /* Dark background */
+    color: #00ffcc; /* Neon text */
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+}
+
+/* Game Container */
+.game-container {
+    margin: 20px auto;
+    width: fit-content;
+    padding: 20px;
+    border: 2px solid #00ffcc;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 20px #00ffcc;
+}
+
+/* Game Board */
+table {
+    border-collapse: collapse;
+    margin: 20px auto;
+    
+}
+
+td {
+    width: 100px;
+    height: 100px;
+    text-align: center;
+    font-size: 1.8em;
+    border: 2px solid #00ffcc;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    border-radius: 8px; /* Slightly rounded corners */
+}
+
+    td:hover {
+        background-color: #00ffcc;
+        color: black;
+        box-shadow: 0 0 10px #00ffcc;
+    }
+
+/* Game Status */
+.game-status {
+    font-size: 1.4em;
+    margin-top: 10px;
+}
+
+/* Buttons */
+button {
+    background-color: #00ffcc;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 5px;
+}
+
+    button:hover {
+        background-color: #00cc99;
+        box-shadow: 0 0 10px #00cc99;
+    }
+
+.game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.scoreboard {
+    background-color: #111;
+    border: 3px solid #00ffcc;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px #00ffcc;
+    width: 200px;
+}
+
+    .scoreboard h2 {
+        color: #00ffcc;
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .scoreboard p {
+        font-size: 1.5em;
+        color: white;
+    }
+
+.player-x {
+    color: #ff00ff;
+}
+
+.player-o {
+    color: #00ffcc;
+}
+
+/* Winning cell glow effect */
+.winner {
+    animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 10px #ff0;
+        background-color: rgba(255, 255, 0, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 20px #ff0;
+        background-color: rgba(255, 255, 0, 0.6);
+    }
+}
