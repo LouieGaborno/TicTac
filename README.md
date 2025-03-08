@@ -5,7 +5,7 @@ Welcome to the **Project Name** repository! Follow these steps to download and o
 ## Steps to Download and Open the Project
 
 1. **Visit the Repository:**
-   - Click on the link to this GitHub repository: [Project Repository](https://github.com/LouieGaborno/your-repository)
+   - Click on the link to this GitHub repository: [Project Repository](https://github.com/LouieGaborno/TicTac.git)
 
 2. **Download the Project:**
    - On the repository page, look for the **Code** button (usually green, located near the top right of the page).
